@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="dark"> <!-- Added dark class to html for theme consistency -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Time & Speed Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple animation for the result cards */
+        .result-card {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom focus styles for dark mode */
+        .custom-focus:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.5); /* Brighter blue for dark mode */
+            border-color: #60a5fa; /* Tailwind's blue-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen p-4">
+
+    <main class="w-full max-w-md mx-auto">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-6 md:p-8">
+            <header class="text-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold text-white">Travel Calculator</h1>
+                <p class="text-gray-400 mt-2">Instantly calculate your travel time and speed breakdown.</p>
+            </header>
+
+            <!-- Input Section -->
+            <div class="space-y-6">
+                <div>
+                    <label for="speed" class="block text-sm font-medium text-gray-300 mb-2">Speed (km/h)</label>
+                    <div class="relative">
+                        <input type="number" id="speed" name="speed" placeholder="e.g., 100" class="custom-focus w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-lg text-white transition duration-200" value="95">
+                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-sm text-gray-400">km/h</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="distance" class="block text-sm font-medium text-gray-300 mb-2">Distance (km)</label>
+                     <div class="relative">
+                        <input type="number" id="distance" name="distance" placeholder="e.g., 250" class="custom-focus w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-lg text-white transition duration-200" value="13">
+                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-sm text-gray-400">km</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="my-8 border-t border-gray-700"></div>
+
+            <!-- Results Section -->
+            <div class="space-y-6">
+                <!-- Travel Time Calculation -->
+                <section id="time-result-section" style="display: none;">
+                     <h2 class="text-lg font-semibold text-gray-100 mb-3 text-center">Travel Time</h2>
+                    <div class="bg-blue-900/50 border border-blue-800 rounded-xl p-5 text-center result-card">
+                        <p id="travel-time" class="text-2xl md:text-3xl font-bold text-blue-300">--h --m --s</p>
+                    </div>
+                </section>
+
+                <!-- Live Speed Breakdown -->
+                 <section id="speed-result-section" style="display: none;">
+                    <h2 class="text-lg font-semibold text-gray-100 mb-3 text-center">Speed Breakdown</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 result-card">
+                        <div class="bg-gray-700/80 p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-400">Per Hour</p>
+                            <p id="km-hour" class="text-xl font-semibold text-white">-- km</p>
+                        </div>
+                        <div class="bg-gray-700/80 p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-400">Per Minute</p>
+                            <p id="km-minute" class="text-xl font-semibold text-white">-- km</p>
+                        </div>
+                        <div class="bg-gray-700/80 p-4 rounded-lg text-center col-span-1 sm:col-span-2">
+                             <p class="text-sm text-gray-400">Time for 1 km</p>
+                            <p id="time-for-1km" class="text-xl font-semibold text-white">--m --s</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <footer class="text-center mt-6">
+            <p class="text-sm text-gray-500">Designed for clarity on the go.</p>
+        </footer>
+    </main>
+
+    <script>
+        const speedInput = document.getElementById('speed');
+        const distanceInput = document.getElementById('distance');
+
+        // Result sections
+        const timeResultSection = document.getElementById('time-result-section');
+        const speedResultSection = document.getElementById('speed-result-section');
+        
+        // Result elements
+        const travelTimeEl = document.getElementById('travel-time');
+        const kmHourEl = document.getElementById('km-hour');
+        const kmMinuteEl = document.getElementById('km-minute');
+        const timeFor1kmEl = document.getElementById('time-for-1km');
+
+        // --- Event Listeners ---
+        speedInput.addEventListener('input', calculate);
+        distanceInput.addEventListener('input', calculate);
+
+        // --- Functions ---
+        function formatTime(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds < 0) return '--h --m --s';
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            return `${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function calculate() {
+            const speed = parseFloat(speedInput.value);
+            const distance = parseFloat(distanceInput.value);
+
+            // Calculate and display speed breakdown
+            if (speed > 0) {
+                speedResultSection.style.display = 'block';
+                kmHourEl.textContent = `${speed.toFixed(0)} km`;
+                kmMinuteEl.textContent = `${(speed / 60).toFixed(2)} km`;
+                
+                const secondsFor1km = 3600 / speed;
+                const minutesPart = Math.floor(secondsFor1km / 60);
+                const secondsPart = Math.round(secondsFor1km % 60);
+                timeFor1kmEl.textContent = `${minutesPart}m ${secondsPart}s`;
+            } else {
+                speedResultSection.style.display = 'none';
+            }
+
+            // Calculate and display travel time
+            if (speed > 0 && distance > 0) {
+                timeResultSection.style.display = 'block';
+                const totalTripSeconds = (distance / speed) * 3600;
+                travelTimeEl.textContent = formatTime(totalTripSeconds);
+            } else {
+                timeResultSection.style.display = 'none';
+            }
+        }
+
+        // Initial calculation on page load
+        document.addEventListener('DOMContentLoaded', calculate);
+    </script>
+</body>
+</html>
+
+
