@@ -71,16 +71,12 @@
                 <!-- Live Speed Breakdown -->
                  <section id="speed-result-section" style="display: none;">
                     <h2 class="text-lg font-semibold text-gray-100 mb-3 text-center">Speed Breakdown</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 result-card">
-                        <div class="bg-gray-700/80 p-4 rounded-lg text-center">
-                            <p class="text-sm text-gray-400">Per Hour</p>
-                            <p id="km-hour" class="text-xl font-semibold text-white">-- km</p>
-                        </div>
+                    <div class="grid grid-cols-1 gap-4 result-card">
                         <div class="bg-gray-700/80 p-4 rounded-lg text-center">
                             <p class="text-sm text-gray-400">Per Minute</p>
                             <p id="km-minute" class="text-xl font-semibold text-white">-- km</p>
                         </div>
-                        <div class="bg-gray-700/80 p-4 rounded-lg text-center col-span-1 sm:col-span-2">
+                        <div class="bg-gray-700/80 p-4 rounded-lg text-center">
                              <p class="text-sm text-gray-400">Time for 1 km</p>
                             <p id="time-for-1km" class="text-xl font-semibold text-white">--m --s</p>
                         </div>
@@ -104,7 +100,6 @@
         
         // Result elements
         const travelTimeEl = document.getElementById('travel-time');
-        const kmHourEl = document.getElementById('km-hour');
         const kmMinuteEl = document.getElementById('km-minute');
         const timeFor1kmEl = document.getElementById('time-for-1km');
 
@@ -128,7 +123,6 @@
             // Calculate and display speed breakdown
             if (speed > 0) {
                 speedResultSection.style.display = 'block';
-                kmHourEl.textContent = `${speed.toFixed(0)} km`;
                 kmMinuteEl.textContent = `${(speed / 60).toFixed(2)} km`;
                 
                 const secondsFor1km = 3600 / speed;
